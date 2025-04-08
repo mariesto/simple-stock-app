@@ -1,0 +1,35 @@
+package com.mariesto.simplestockapp.persistence.entity;
+
+import com.mariesto.simplestockapp.constant.TradeType;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CurrentTimestamp;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+
+@Entity
+@Table(name = "trades")
+@Getter
+@Setter
+public class Trade {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String userId;
+
+    private String stockSymbol;
+
+    private Long quantity;
+
+    private BigDecimal price;
+
+    @Enumerated(EnumType.STRING)
+    private TradeType type;
+
+    @CurrentTimestamp
+    private Timestamp timestamp;
+}

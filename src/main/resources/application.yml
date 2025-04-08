@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: simple-stock-app
+  jpa:
+    show-sql: true
+    database: postgresql
+    properties:
+      hibernate:
+        format_sql: true
+        order_updates: true
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  datasource:
+    username: user123
+    password: pwd123
+    url: jdbc:postgresql://localhost:5432/stocks?createDatabaseIfNotExist=true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

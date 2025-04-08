@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    container_name: stock-app-db
+    restart: always
+    environment:
+      POSTGRES_USER: user123
+      POSTGRES_PASSWORD: pwd123
+      POSTGRES_DB: stocks
+    ports:
+      - "5432:5432"
+    networks:
+      - stocks-app-network
+
+networks:
+  stocks-app-network:
+    driver: bridge
