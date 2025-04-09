@@ -10,8 +10,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Random;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -27,37 +25,24 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.deleteAll();
 
         Faker faker = new Faker();
-        Random random = new Random();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 100; i++) {
             User user = new User();
-            user.setUserId(UUID.randomUUID().toString());
+            user.setUserId("user-" + i);
             user.setBalance(BigDecimal.valueOf(100000));
-            user.setVersion(0L);
             userRepository.save(user);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= 10; i++) {
             int availableQuantity = faker.number().numberBetween(100, 500);
-            String stockSymbol = generateRandomStockSymbol(random);
             double price = faker.number().randomDouble(4, 100, 500);
 
             Stock stock = new Stock();
-            stock.setSymbol(stockSymbol);
+            stock.setSymbol("STCK-" + i);
             stock.setCurrentPrice(BigDecimal.valueOf(price));
             stock.setAvailableQuantity((long) availableQuantity);
 
             stockRepository.save(stock);
         }
-    }
-
-    private String generateRandomStockSymbol(Random random) {
-        int length = random.nextBoolean() ? 3 : 4;
-        StringBuilder symbolBuilder = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            char letter = (char) ('A' + random.nextInt(26));
-            symbolBuilder.append(letter);
-        }
-        return symbolBuilder.toString();
     }
 }
