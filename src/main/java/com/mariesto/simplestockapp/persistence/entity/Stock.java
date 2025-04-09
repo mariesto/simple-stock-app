@@ -16,8 +16,6 @@ public class Stock {
     @Column(length = 20)
     private String symbol;
 
-    private String name;
-
     @Column(precision = 19, scale = 4)
     private BigDecimal currentPrice;
 
