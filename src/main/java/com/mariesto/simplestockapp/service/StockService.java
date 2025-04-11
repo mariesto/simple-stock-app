@@ -31,15 +31,15 @@ public class StockService {
 
     @Transactional
     public void executeTrade(TradeRequest request) {
-        var user = userRepository.findUserByUserIdWithLock(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
         if (request.getQuantity() <= 0) {
             throw new RuntimeException("Stock quantity is zero");
         }
 
         var stock = stockRepository.findWithLock(request.getStockSymbol())
                 .orElseThrow(() -> new RuntimeException("Stock symbol not found"));
+
+        var user = userRepository.findUserByUserIdWithLock(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         BigDecimal totalCost = stock.getCurrentPrice().multiply(BigDecimal.valueOf(request.getQuantity()));
 

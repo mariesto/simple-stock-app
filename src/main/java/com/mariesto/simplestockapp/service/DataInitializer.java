@@ -29,18 +29,17 @@ public class DataInitializer implements CommandLineRunner {
         for (int i = 1; i <= 100; i++) {
             User user = new User();
             user.setUserId("user-" + i);
-            user.setBalance(BigDecimal.valueOf(100000));
+            user.setBalance(BigDecimal.valueOf(1_000_000));
             userRepository.save(user);
         }
 
         for (int i = 1; i <= 10; i++) {
-            int availableQuantity = faker.number().numberBetween(100, 500);
             double price = faker.number().randomDouble(4, 100, 500);
 
             Stock stock = new Stock();
             stock.setSymbol("STCK-" + i);
             stock.setCurrentPrice(BigDecimal.valueOf(price));
-            stock.setAvailableQuantity((long) availableQuantity);
+            stock.setAvailableQuantity(5000L);
 
             stockRepository.save(stock);
         }
