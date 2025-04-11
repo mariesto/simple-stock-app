@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
             Stock stock = new Stock();
             stock.setSymbol("STCK-" + i);
             stock.setCurrentPrice(BigDecimal.valueOf(price));
-            stock.setAvailableQuantity(5000L);
+            stock.setAvailableQuantity(2_000_000L);
 
             stockRepository.save(stock);
         }

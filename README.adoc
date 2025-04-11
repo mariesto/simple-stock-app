@@ -2,12 +2,15 @@
 
 This is a simple project which simulate a buy and sell a stock.
 The main purpose is to simulate a transactional process with high throughput.
-- Using `@Transactional` annotation
-- `Optimistic Locking` was chosen by adding `@Version` annotation in the entity class
-- Using simple lock mechanism of `@Lock(LockModeType.PESSIMISTIC_WRITE)` in order to acquire an exclusive lock on the database row to prevent other transactions from reading or writing to it. Using `PESSIMISTIC_WRITE` ensures that once a transaction reads the user's data for update, no other transaction can modify it until the first one commits.
-- Having pagination for fetching all user trades
-- Connection Pool was enabled by default using HikariCP
 
+* Using `@Transactional` annotation
+* `Optimistic Locking` was chosen by adding `@Version` annotation in the entity class
+* Using simple lock mechanism of `@Lock(LockModeType.PESSIMISTIC_WRITE)` in order to acquire an exclusive lock on the database row to prevent other transactions from reading or writing to it.
+- Using `PESSIMISTIC_WRITE` ensures that once a transaction reads the user's data for update, no other transaction can modify it until the first one commits.
+* Having pagination for fetching all user trades
+* Connection Pool was enabled by default using HikariCP
+
+[#_tech_stack]
 === Tech Stack
 
 * Spring Boot (3.4.3)
@@ -16,6 +19,7 @@ The main purpose is to simulate a transactional process with high throughput.
 * Docker
 * K6 (Load Testing)
 
+[#_how_to_use]
 === How to Use
 
 * Run the docker-compose to spin up a Postgres DB
@@ -26,7 +30,10 @@ The main purpose is to simulate a transactional process with high throughput.
 === Performance
 
 In order to measure the API performance, we will use k6.
-The test was using https://grafana.com/docs/k6/latest/using-k6/scenarios/executors/constant-arrival-rate/#constant-arrival-rate[`constant-arrival-rate`], where the k6 starts a fixed number of iterations over a specified period of time.
+There are 2 types of test to perform :
+
+* constant rate request (default)
+* ramped-up rate request (update the `script.js`)
 
 To run the test, you need to run command :
 [source,bash]
@@ -37,5 +44,13 @@ k6 run script.js
 If you prefer web based report, you can run command :
 [source,shell]
 ----
-K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=constant-arrival-rate-report.html k6 run script.js
+K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=[report_file_name].html k6 run script.js
 ----
+
+[#_todos]
+=== TODOs:
+
+* [ ] Implement proper exception handling
+* [x] Implement k6 script which use `ramping-arrival-rate`
+* [ ] Implement retry mechanism
+* [ ] Perform the test on VPS
