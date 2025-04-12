@@ -51,6 +51,7 @@ K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=[report_file_name].html k6 run scr
 === TODOs:
 
 * [ ] Implement proper exception handling
+* [x] Enhance the k6 test to simulate SELL transaction
 * [x] Implement k6 script which use `ramping-arrival-rate`
 * [ ] Implement retry mechanism
 * [ ] Perform the test on VPS

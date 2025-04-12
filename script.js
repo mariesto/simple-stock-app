@@ -54,11 +54,14 @@ export default function (data) {
     const user = data.users[userIndex];
     const stock = getStockForUser(user, data.stocks);
 
+    const tradeType = Math.random() < 0.65 ? 'BUY' : 'SELL';
+    const quantity = tradeType === 'BUY' ? 3 : 2;
+
     let payload = JSON.stringify({
         userId: user,
-        quantity: 3,
+        quantity: quantity,
         stockSymbol: stock,
-        tradeType: 'BUY'
+        tradeType: tradeType
     })
 
     let url = 'http://localhost:8080/api/v1/stocks/trade';
