@@ -1,5 +1,7 @@
 package com.mariesto.simplestockapp.service.processor;
 
+import com.mariesto.simplestockapp.exception.InsufficientHoldingException;
+import com.mariesto.simplestockapp.exception.NotFoundException;
 import com.mariesto.simplestockapp.model.TradeRequest;
 import com.mariesto.simplestockapp.persistence.entity.Stock;
 import com.mariesto.simplestockapp.persistence.entity.User;
@@ -25,7 +27,7 @@ public class SellProcessor implements TradeProcessor {
     public void execute(User user, Stock stock, BigDecimal totalCost, TradeRequest request) {
 
         UserStock holdings = userStockRepository.findById(new UserStockId(user.getId(), stock.getSymbol()))
-                .orElseThrow(() -> new RuntimeException("No holdings to sell"));
+                .orElseThrow(() -> new NotFoundException(stock.getSymbol()));
 
         validateHoldings(holdings, request.getQuantity());
 
@@ -36,7 +38,7 @@ public class SellProcessor implements TradeProcessor {
 
     private void validateHoldings(UserStock holdings, Long quantity) {
         if (holdings.getQuantity() < quantity) {
-            throw new RuntimeException("Not enough shares to sell");
+            throw new InsufficientHoldingException();
         }
     }
 

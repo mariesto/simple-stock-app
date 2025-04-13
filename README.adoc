@@ -1,4 +1,9 @@
 = Simple Stock App
+:doctype: book
+:toc:
+
+[#_overview]
+== Overview
 
 This is a simple project which simulate a buy and sell a stock.
 The main purpose is to simulate a transactional process with high throughput.
@@ -11,7 +16,7 @@ The main purpose is to simulate a transactional process with high throughput.
 * Connection Pool was enabled by default using HikariCP
 
 [#_tech_stack]
-=== Tech Stack
+== Tech Stack
 
 * Spring Boot (3.4.3)
 * Java (21)
@@ -20,14 +25,14 @@ The main purpose is to simulate a transactional process with high throughput.
 * K6 (Load Testing)
 
 [#_how_to_use]
-=== How to Use
+== How to Use
 
 * Run the docker-compose to spin up a Postgres DB
 * Run the spring boot project (automatically trigger the data initializer)
 * Install k6 locally to run API test script (https://grafana.com/docs/k6/latest/set-up/install-k6/[Reference])
 
 [#_performance]
-=== Performance
+== Performance
 
 In order to measure the API performance, we will use k6.
 There are 2 types of test to perform :
@@ -48,9 +53,9 @@ K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=[report_file_name].html k6 run scr
 ----
 
 [#_todos]
-=== TODOs:
+== TODOs
 
-* [ ] Implement proper exception handling
+* [x] Implement proper exception handling
 * [x] Enhance the k6 test to simulate SELL transaction
 * [x] Implement k6 script which use `ramping-arrival-rate`
 * [ ] Implement retry mechanism

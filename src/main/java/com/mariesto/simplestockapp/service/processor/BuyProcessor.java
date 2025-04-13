@@ -1,5 +1,7 @@
 package com.mariesto.simplestockapp.service.processor;
 
+import com.mariesto.simplestockapp.exception.InsufficientFundException;
+import com.mariesto.simplestockapp.exception.InsufficientStockException;
 import com.mariesto.simplestockapp.model.TradeRequest;
 import com.mariesto.simplestockapp.persistence.entity.Stock;
 import com.mariesto.simplestockapp.persistence.entity.User;
@@ -33,13 +35,13 @@ public class BuyProcessor implements TradeProcessor {
 
     private void validateBalance(User user, BigDecimal totalCost) {
         if (user.getBalance().compareTo(totalCost) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InsufficientFundException();
         }
     }
 
     private void validateStockQuantity(Stock stock, Long quantity) {
         if (stock.getAvailableQuantity() < quantity) {
-            throw new RuntimeException("Stock quantity is not enough");
+            throw new InsufficientStockException(stock.getSymbol());
         }
     }
 

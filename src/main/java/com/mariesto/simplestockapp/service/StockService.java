@@ -1,5 +1,6 @@
 package com.mariesto.simplestockapp.service;
 
+import com.mariesto.simplestockapp.exception.NotFoundException;
 import com.mariesto.simplestockapp.model.TradeRequest;
 import com.mariesto.simplestockapp.model.UserStockResponse;
 import com.mariesto.simplestockapp.model.UserTradeResponse;
@@ -39,10 +40,10 @@ public class StockService {
         }
 
         var stock = stockRepository.findWithLock(request.getStockSymbol())
-                .orElseThrow(() -> new RuntimeException("Stock symbol not found"));
+                .orElseThrow(() -> new NotFoundException(request.getStockSymbol()));
 
         var user = userRepository.findUserByUserIdWithLock(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException(request.getUserId()));
 
         BigDecimal totalCost = stock.getCurrentPrice().multiply(BigDecimal.valueOf(request.getQuantity()));
 
