@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "trades")
+@Table(name = "trades", indexes = {@Index(name = "idx_user_id", columnList = "userId")})
 @Getter
 @Setter
 public class Trade {
