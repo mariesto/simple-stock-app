@@ -33,11 +33,11 @@ public class DataInitializer implements CommandLineRunner {
         Faker faker = new Faker();
 
         for (int i = 1; i <= 10; i++) {
-            double price = faker.number().randomDouble(4, 100, 500);
+            long price = faker.number().numberBetween(100, 500);
 
             Stock stock = new Stock();
             stock.setSymbol("STCK-" + i);
-            stock.setCurrentPrice(BigDecimal.valueOf(price));
+            stock.setCurrentPrice(price);
             stock.setAvailableQuantity(2_000_000L);
 
             stockRepository.save(stock);

@@ -1,11 +1,11 @@
 package com.mariesto.simplestockapp.service;
 
+import com.mariesto.simplestockapp.exception.InvalidRequestException;
 import com.mariesto.simplestockapp.exception.NotFoundException;
 import com.mariesto.simplestockapp.model.TradeRequest;
 import com.mariesto.simplestockapp.model.UserStockResponse;
 import com.mariesto.simplestockapp.model.UserTradeResponse;
 import com.mariesto.simplestockapp.persistence.entity.Trade;
-import com.mariesto.simplestockapp.persistence.entity.User;
 import com.mariesto.simplestockapp.persistence.entity.UserStock;
 import com.mariesto.simplestockapp.persistence.repository.StockRepository;
 import com.mariesto.simplestockapp.persistence.repository.TradeRepository;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,7 @@ public class StockService {
     @Transactional
     public void executeTrade(TradeRequest request) {
         if (request.getQuantity() <= 0) {
-            throw new RuntimeException("Stock quantity is zero");
+            throw new InvalidRequestException("Stock quantity is zero");
         }
 
         var stock = stockRepository.findWithLock(request.getStockSymbol())
@@ -45,27 +44,16 @@ public class StockService {
         var user = userRepository.findUserByUserIdWithLock(request.getUserId())
                 .orElseThrow(() -> new NotFoundException(request.getUserId()));
 
-        BigDecimal totalCost = stock.getCurrentPrice().multiply(BigDecimal.valueOf(request.getQuantity()));
-
         TradeProcessor tradeProcessor = tradeExecutor.getTradeProcessor(request.getTradeType());
-        tradeProcessor.execute(user, stock, totalCost, request);
-
-        createNewTrade(request, user, totalCost);
-    }
-
-    private void createNewTrade(TradeRequest request, User user, BigDecimal totalCost) {
-        Trade trade = new Trade();
-        trade.setType(request.getTradeType());
-        trade.setPrice(totalCost);
-        trade.setUserId(user.getUserId());
-        trade.setStockSymbol(request.getStockSymbol());
-        trade.setQuantity(request.getQuantity());
-        tradeRepository.save(trade);
+        tradeProcessor.execute(user, stock, request);
     }
 
     public List<UserStockResponse> fetchUserStocks(final String userId) {
         List<UserStock> userStocks = userStockRepository.findByUser(userId);
-        return userStocks.stream().map(userStock -> new UserStockResponse(userStock.getStock().getSymbol(), userStock.getQuantity(), BigDecimal.valueOf(userStock.getQuantity()).multiply(userStock.getStock().getCurrentPrice()), userStock.getStock().getCurrentPrice())).collect(Collectors.toList());
+        return userStocks.stream().map(userStock -> {
+            long totalPrice = userStock.getQuantity() * userStock.getStock().getCurrentPrice();
+            return new UserStockResponse(userStock.getStock().getSymbol(), userStock.getQuantity(), totalPrice, userStock.getStock().getCurrentPrice());
+        }).collect(Collectors.toList());
     }
 
     public List<UserTradeResponse> fetchUserTrades(final String userId, int page, int size) {

@@ -16,8 +16,7 @@ public class Stock {
     @Column(length = 20)
     private String symbol;
 
-    @Column(precision = 19, scale = 4)
-    private BigDecimal currentPrice;
+    private Long currentPrice;
 
     private Long availableQuantity;
 

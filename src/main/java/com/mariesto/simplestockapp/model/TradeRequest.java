@@ -1,10 +1,10 @@
 package com.mariesto.simplestockapp.model;
 
+import com.mariesto.simplestockapp.constant.OrderType;
 import com.mariesto.simplestockapp.constant.TradeType;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 @Data
 public class TradeRequest {
@@ -15,4 +15,8 @@ public class TradeRequest {
     private TradeType tradeType;
 
     private Long quantity;
+
+    private OrderType orderType;
+
+    private Long limitPrice;
 }
