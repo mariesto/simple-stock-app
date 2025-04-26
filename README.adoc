@@ -5,12 +5,12 @@
 [#_overview]
 == Overview
 
-This is a simple project which simulate a buy and sell a stock.
-The main purpose is to simulate a transactional process with high throughput.
+This is a simple project that simulates a buy and sell a stock.
+The main purpose is to simulate a transactional process with high throughput. This application is aimed to be able to handle MARKET and LIMIT order.
 
 * Using `@Transactional` annotation
 * `Optimistic Locking` was chosen by adding `@Version` annotation in the entity class
-* Using simple lock mechanism of `@Lock(LockModeType.PESSIMISTIC_WRITE)` in order to acquire an exclusive lock on the database row to prevent other transactions from reading or writing to it.
+* Using a simple lock mechanism of `@Lock(LockModeType.PESSIMISTIC_WRITE)` in order to acquire an exclusive lock on the database row to prevent other transactions from reading or writing to it.
 - Using `PESSIMISTIC_WRITE` ensures that once a transaction reads the user's data for update, no other transaction can modify it until the first one commits.
 * Having pagination for fetching all user trades
 * Connection Pool was enabled by default using HikariCP
@@ -46,7 +46,7 @@ To run the test, you need to run command :
 k6 run script.js
 ----
 
-If you prefer web based report, you can run command :
+If you prefer a web-based report, you can run command :
 [source,shell]
 ----
 K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=[report_file_name].html k6 run script.js
@@ -58,5 +58,6 @@ K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT=[report_file_name].html k6 run scr
 * [x] Implement proper exception handling
 * [x] Enhance the k6 test to simulate SELL transaction
 * [x] Implement k6 script which use `ramping-arrival-rate`
-* [ ] Implement retry mechanism
+* [ ] Implement unit testing
+* [ ] Implement a retry mechanism
 * [ ] Perform the test on VPS
