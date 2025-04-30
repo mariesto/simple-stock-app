@@ -18,6 +18,10 @@ public class Trade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String buyOrderId;
+
+    private String sellOrderId;
+
     private String userId;
 
     private String stockSymbol;

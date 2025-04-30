@@ -2,7 +2,7 @@ spring:
   application:
     name: simple-stock-app
   jpa:
-    show-sql: true
+    show-sql: false
     database: postgresql
     properties:
       hibernate:

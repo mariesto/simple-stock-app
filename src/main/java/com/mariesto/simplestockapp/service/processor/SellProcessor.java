@@ -5,6 +5,7 @@ import com.mariesto.simplestockapp.constant.OrderType;
 import com.mariesto.simplestockapp.constant.TradeType;
 import com.mariesto.simplestockapp.exception.InsufficientFundException;
 import com.mariesto.simplestockapp.exception.InsufficientHoldingException;
+import com.mariesto.simplestockapp.exception.InsufficientLiquidityException;
 import com.mariesto.simplestockapp.exception.NotFoundException;
 import com.mariesto.simplestockapp.model.TradeRequest;
 import com.mariesto.simplestockapp.persistence.entity.*;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -37,15 +39,50 @@ public class SellProcessor implements TradeProcessor {
     }
 
     private void processMarketOrder(User user, Stock stock, TradeRequest request) {
+        Long quantityToSell = request.getQuantity();
+        List<LimitOrder> buyOrders = limitOrderRepository.findMatchingOrdersByType(request.getStockSymbol(), TradeType.BUY);
+
+        if (buyOrders.isEmpty()) {
+            throw new InsufficientLiquidityException();
+        }
+
         UserStock holdings = userStockRepository.findById(new UserStockId(user.getId(), stock.getSymbol()))
                 .orElseThrow(() -> new NotFoundException(stock.getSymbol()));
 
         validateHoldings(holdings, request.getQuantity());
-        Long totalCost = stock.getCurrentPrice() * request.getQuantity();
-        updateUserBalance(user, totalCost);
-        updateStockQuantity(stock, request.getQuantity());
-        updateUserHoldings(holdings, request.getQuantity());
-        createNewTrade(request, user, totalCost);
+
+        for (LimitOrder buyOrder : buyOrders) {
+            if (quantityToSell == 0) break;
+            long matchQuantity = Math.min(quantityToSell, buyOrder.getRemainingQuantity());
+            Long matchedPrice = buyOrder.getLimitPrice();
+            Long matchRevenue = matchedPrice * matchedPrice;
+
+            createNewTrade(request, matchedPrice, buyOrder.getOrderId());
+            updateUserBalance(user, matchRevenue);
+            updateUserHoldings(holdings, request.getQuantity());
+            updateStockQuantity(stock, request.getQuantity());
+
+            buyOrder.setRemainingQuantity(buyOrder.getRemainingQuantity() - matchQuantity);
+            buyOrder.setOrderStatus(buyOrder.getRemainingQuantity() == 0 ? OrderStatus.FILLED : OrderStatus.PARTIALLY_FILLED);
+            limitOrderRepository.save(buyOrder);
+
+            quantityToSell -= matchQuantity;
+        }
+
+        if (quantityToSell > 0) {
+            throw new InsufficientLiquidityException();
+        }
+    }
+
+    private void createNewTrade(TradeRequest request, Long totalCost, String buyOrderId) {
+        Trade trade = new Trade();
+        trade.setType(TradeType.SELL);
+        trade.setPrice(totalCost);
+        trade.setUserId(request.getUserId());
+        trade.setStockSymbol(request.getStockSymbol());
+        trade.setQuantity(request.getQuantity());
+        trade.setBuyOrderId(buyOrderId);
+        tradeRepository.save(trade);
     }
 
     private void processLimitOrder(User user, Stock stock, TradeRequest request) {
@@ -53,7 +90,7 @@ public class SellProcessor implements TradeProcessor {
             throw new InsufficientFundException();
         }
 
-        Long totalCost = request.getQuantity() * request.getLimitPrice();
+        long totalCost = request.getQuantity() * request.getLimitPrice();
 
         fractionPriceValidator.validate(BigDecimal.valueOf(stock.getCurrentPrice()), BigDecimal.valueOf(totalCost));
 
@@ -63,19 +100,10 @@ public class SellProcessor implements TradeProcessor {
         limitOrder.setOrderStatus(OrderStatus.PENDING);
         limitOrder.setLimitPrice(request.getLimitPrice());
         limitOrder.setQuantity(request.getQuantity());
+        limitOrder.setRemainingQuantity(request.getQuantity());
         limitOrder.setType(TradeType.SELL);
         limitOrder.setStockSymbol(stock.getSymbol());
         limitOrderRepository.save(limitOrder);
-    }
-
-    private void createNewTrade(TradeRequest request, User user, Long totalCost) {
-        Trade trade = new Trade();
-        trade.setType(request.getTradeType());
-        trade.setPrice(totalCost);
-        trade.setUserId(user.getUserId());
-        trade.setStockSymbol(request.getStockSymbol());
-        trade.setQuantity(request.getQuantity());
-        tradeRepository.save(trade);
     }
 
     private void validateHoldings(UserStock holdings, Long quantity) {
